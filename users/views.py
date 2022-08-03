@@ -1,6 +1,7 @@
 """Users views."""
 # Imports
 import jwt
+import sys
 
 # Django
 from django.contrib.sites.shortcuts import get_current_site
@@ -54,11 +55,11 @@ class UserSignUpAPIView(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            exc_tb = sys.exc_info()[2]
             return Response({"message": "something bad ocurred!",
-                             "error": str(e)
+                             "error": f"{str(e)} line: {exc_tb.tb_lineno}"
                              },
                             status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class VerifyEmailAPIView(generics.GenericAPIView):
