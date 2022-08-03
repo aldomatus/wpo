@@ -21,3 +21,4 @@ wheel~=0.37.1
 setuptools~=49.2.1
 mysqlclient
 django_cryptography
+django-environ
