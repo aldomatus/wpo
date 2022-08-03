@@ -1,5 +1,5 @@
 from django.urls import path
-from apps import views
+from users.views import (UserSignUpAPIView, VerifyEmailAPIView)
 """wpo_backend URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -20,5 +20,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path("", include("apps.urls")),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    path('users/signup/', UserSignUpAPIView.as_view(), name='signup'),
+    path('user/email-verification', VerifyEmailAPIView.as_view(), name='email_verification'),
 ]
