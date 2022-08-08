@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.conf import settings
 
 # Django REST Framework
+from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework import permissions, generics
 from rest_framework.response import Response
@@ -16,6 +17,10 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
+
+# Simple JWT
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Serializers
 from users.serializers import (
@@ -49,7 +54,7 @@ class UserSignUpAPIView(APIView):
             current_site = get_current_site(request).domain
             relativeLink = reverse('email_verification')
             absurl = 'http://' + current_site + relativeLink + "?token=" + str(token)
-            email_body = 'Hi ' + user_token.user_name + ' use the next link to verify your email: ' + absurl
+            email_body = 'Hi ' + str(user_token.user_name) + ' use the next link to verify your email: ' + str(absurl)
             data = {'email_body': email_body, 'to_email': user_token.email, 'email_subject': 'Verify your email'}
             Util.send_email(data)
             return Response(data, status=status.HTTP_201_CREATED)
@@ -81,3 +86,31 @@ class VerifyEmailAPIView(generics.GenericAPIView):
         except jwt.exceptions.DecodeError as e:
             print(e)
             return Response({'error': 'Decode error'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserLoginAPIView(TokenObtainPairView):
+    """User login API view."""
+    permission_classes = [permissions.AllowAny]
+    serializer_class = TokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        """Handle HTTP POST request."""
+        email = request.data.get('email', '')
+        password = request.data.get('password', '')
+        user = authenticate(
+            email=email,
+            password=password
+        )
+        if user:
+            login_serializer = self.serializer_class(data=request.data)
+            if login_serializer.is_valid():
+                user_serializer = UserModelSerializer(user)
+                
+                return Response({
+                    'access_token': login_serializer.validated_data.get('access'),
+                    'refresh-token': login_serializer.validated_data.get('refresh'),
+                    'user': user_serializer.data,
+                    'message': 'Inicio de sesión exitoso'
+                }, status=status.HTTP_200_OK)
+            return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)

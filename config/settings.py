@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps',
+    'rest_framework',
     'users'
 ]
 
@@ -137,3 +137,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRYPTOGRAPHY_BACKEND = 'cryptography.hazmat.backends.default_backend'
+CRYPTOGRAPHY_KEY = os.environ["DB_PASSWORD_ENCRYPT"].encode()
+CRYPTOGRAPHY_SALT = 'django-cryptography'
+SIGNING_BACKEND = 'django_cryptography.core.signing.TimestampSigner'
+
+
+
