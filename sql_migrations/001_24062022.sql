@@ -1,4 +1,4 @@
-insert into wpo_local.wpo_ctdeporte (dep_deporte, dep_slug, dep_estatus)
+insert into wpo_logic_ctsport(sport_name, sport_slug, sport_status)
 values
 ('Balonmano', 'balonmano', 1),
 ('Basquetbol', 'basquetbol', 1),
@@ -17,10 +17,9 @@ values
 ('Tocho bandera', 'tocho-bandera', 1),
 ('Ultimate Frisbee', 'ultimate-frisbee', 1),
 ('Voleibol', 'voleibol', 1),
-('Voleibol de playa', 'voleibol-de-playa', 1)
+('Voleibol de playa', 'voleibol-de-playa', 1);
 
-
-insert into weplayone.users_ctdomainwhitelist(domain_wl_dominio)
+insert into users_ctdomainwhitelist(domain_wl_dominio)
 values ('gmail.com'),
 ('hotmail.com'),
 ('outlook.com'),
@@ -38,4 +37,8 @@ values ('gmail.com'),
 ('tutanota.de'),
 ('tutamail.com'),
 ('tuta.io'),
-('keemail.de')
+('keemail.de');
+
+INSERT INTO `users_ctcountry` (`country_id`, `country_name`, `country_slug`, `country_abbreviation`, `country_political_division`, `country_status`) VALUES (1, 'Sin País', 'sin-pais', 'SP', 'NA', 0);
+INSERT INTO `users_ctstate` (`state_id`, `state_name`, `state_slug`, `state_status`, `country_id`) VALUES (1, 'Sin Estado', 'sin-estado', 1, 1);
+INSERT INTO `users_ctlocation` (`location_id`, `location_name`, `location_slug`, `location_status`, `state_id`) VALUES (1, 'sin-localidad', 'http://www.com', 1, 1);

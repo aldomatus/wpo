@@ -2,6 +2,8 @@
 # Imports
 import jwt
 import sys
+import traceback
+import phonenumbers
 
 # Django
 from django.contrib.sites.shortcuts import get_current_site
@@ -10,17 +12,20 @@ from django.conf import settings
 
 # Django REST Framework
 from django.contrib.auth import authenticate
-from rest_framework import status
-from rest_framework import permissions, generics
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
+# Others libraries
+from phonenumbers import timezone, parse
+
 # Simple JWT
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from users.models.info_users import CtLocation
 
 # Serializers
 from users.serializers import (
@@ -29,7 +34,8 @@ from users.serializers import (
 )
 
 # Models
-from users.models import (CustomUser,)
+from users.models import (CustomUser, Profile)
+from wpo_logic.models import CtSport
 
 from .utils import Util
 
@@ -108,9 +114,51 @@ class UserLoginAPIView(TokenObtainPairView):
                 
                 return Response({
                     'access_token': login_serializer.validated_data.get('access'),
-                    'refresh-token': login_serializer.validated_data.get('refresh'),
+                    'refresh_token': login_serializer.validated_data.get('refresh'),
                     'user': user_serializer.data,
                     'message': 'Inicio de sesión exitoso'
                 }, status=status.HTTP_200_OK)
             return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CompleteUserProfileAPIView(APIView):
+    """User sign up API view."""
+    # permission_classes = (IsAuthenticated,)
+
+    def __init__(self):
+        self.data = None
+
+    def post(self, request, *args, **kwargs):
+        """Handle HTTP POST request."""
+        self.data = request.data
+        try:
+            self.data['location_id'] = CtLocation.objects.filter(location_id=self.data.pop('location_id')).first().location_id
+            self.data['user_id'] = CustomUser.objects.filter(id=self.data.pop('user_id')).first().id
+            self.data['sport_id'] = CtSport.objects.filter(sport_id=self.data.pop('sport_id')).first().sport_id
+
+            if self.valid_phone_checker():
+                profile = Profile.objects.create(**self.data)
+                if profile:
+                    response = {
+                        "status": "OK",
+                        "status_codes": 201,
+                        "status_messages": f"{self.data['user_id'].email} completed profile"
+                    }
+                    return Response(response, status=status.HTTP_201_CREATED)
+            else:
+                raise Exception("Invalid phone number")
+
+        except Exception as e:
+            print(e)
+            exc_info = sys.exc_info()
+            print(''.join(traceback.format_exception(*exc_info)))
+            return Response({"message": "something bad ocurred!",
+                             "error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def valid_phone_checker(self):
+        phone = parse(self.data["profile_phone"], "GB")
+        if phonenumbers.is_valid_number(phone):
+            if 'America/Mexico_City' in timezone.time_zones_for_number(phone):
+                return True
+        return False
