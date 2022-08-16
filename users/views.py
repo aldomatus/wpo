@@ -143,7 +143,7 @@ class CompleteUserProfileAPIView(APIView):
                     response = {
                         "status": "OK",
                         "status_codes": 201,
-                        "status_messages": f"{self.data['user_id'].email} completed profile"
+                        "status_messages": f"{self.data['user_id']} completed profile"
                     }
                     return Response(response, status=status.HTTP_201_CREATED)
             else:
