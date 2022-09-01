@@ -8,18 +8,19 @@ from rest_framework.validators import UniqueValidator
 #  Models
 from users.models import (CustomUser, CtDomainWhitelist, CtState)
 
+
 class UserModelSerializer(serializers.ModelSerializer):
     """User model serializer."""
     class Meta:
-            """Meta class."""
+        """Meta class."""
 
-            model = CustomUser
-            fields = (
-                'user_name',
-                'user_last_name',
-                'email',
-                'state_id'
-            )
+        model = CustomUser
+        fields = (
+            'user_name',
+            'user_last_name',
+            'email',
+            'state_id'
+        )
 
 
 class UserSignUpSerializer(serializers.Serializer):
@@ -78,4 +79,3 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
-

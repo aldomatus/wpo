@@ -1,0 +1,1 @@
+docker stop weplayone; docker rm weplayone; docker run -it --name weplayone -p 3306:3306 -e MYSQL_ROOT_PASSWORD=superstrongpassword -e MYSQL_DATABASE=weplayone  -d mysql

@@ -39,6 +39,14 @@ from wpo_logic.models import CtSport
 
 from .utils import Util
 
+# for reset password email
+from django.core.mail import EmailMultiAlternatives
+from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.urls import reverse
+
+from django_rest_passwordreset.signals import reset_password_token_created
+
 
 class UserSignUpAPIView(APIView):
     """User sign up API view."""
@@ -111,7 +119,7 @@ class UserLoginAPIView(TokenObtainPairView):
             login_serializer = self.serializer_class(data=request.data)
             if login_serializer.is_valid():
                 user_serializer = UserModelSerializer(user)
-                
+
                 return Response({
                     'access_token': login_serializer.validated_data.get('access'),
                     'refresh_token': login_serializer.validated_data.get('refresh'),
@@ -124,6 +132,7 @@ class UserLoginAPIView(TokenObtainPairView):
 
 class CompleteUserProfileAPIView(APIView):
     """User sign up API view."""
+
     # permission_classes = (IsAuthenticated,)
 
     def __init__(self):
@@ -133,7 +142,8 @@ class CompleteUserProfileAPIView(APIView):
         """Handle HTTP POST request."""
         self.data = request.data
         try:
-            self.data['location_id'] = CtLocation.objects.filter(location_id=self.data.pop('location_id')).first().location_id
+            self.data['location_id'] = CtLocation.objects.filter(
+                location_id=self.data.pop('location_id')).first().location_id
             self.data['user_id'] = CustomUser.objects.filter(id=self.data.pop('user_id')).first().id
             self.data['sport_id'] = CtSport.objects.filter(sport_id=self.data.pop('sport_id')).first().sport_id
 
@@ -162,3 +172,44 @@ class CompleteUserProfileAPIView(APIView):
             if 'America/Mexico_City' in timezone.time_zones_for_number(phone):
                 return True
         return False
+
+
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    """
+    Handles password reset tokens
+    When a token is created, an e-mail needs to be sent to the user
+    :param sender: View Class that sent the signal
+    :param instance: View Instance that sent the signal
+    :param reset_password_token: Token Model Object
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    # send an e-mail to the user
+    context = {
+        'current_user': reset_password_token.user,
+        'username': reset_password_token.user.email,
+        'firstName': reset_password_token.user.user_name,
+        'email': reset_password_token.user.email,
+        'reset_password_url': "{}?token={}".format(
+            instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
+            reset_password_token.key)
+    }
+
+    # render email text
+    email_html_message = render_to_string('user_reset_password.html', context)
+    email_plaintext_message = render_to_string('user_reset_password.txt', context)
+
+    msg = EmailMultiAlternatives(
+        # title:
+        "Password Reset for {title}".format(title="We Play One"),
+        # message:
+        email_plaintext_message,
+        # from:
+        "contact@weplay.one",
+        # to:
+        [reset_password_token.user.email]
+    )
+    msg.attach_alternative(email_html_message, "text/html")
+    msg.send()
