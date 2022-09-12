@@ -1,1 +1,8 @@
 docker stop weplayone; docker rm weplayone; docker run -it --name weplayone -p 3306:3306 -e MYSQL_ROOT_PASSWORD=superstrongpassword -e MYSQL_DATABASE=weplayone  -d mysql
+
+# Server commands
+export DJANGO_SETTINGS_MODULE=config.settings
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export DATABASE_NAME=weplayone DATABASE_USER=doadmin DATABASE_PASSWORD=AVNS_iDWk82MReY67_c0klK4 DATABASE_HOST=db-mysql-sfo3-21958-wpo-do-user-11951083-0.b.db.ondigitalocean.com DATABASE_PORT=25060 
+export DB_PASSWORD_ENCRYPT=8mL$$dXdEsa5vnrc 
+export EMAIL_HOST=smtp.gmail.com EMAIL_HOST_USER=contact@weplay.one EMAIL_USE_TLS=True DEFAULT_FROM_EMAIL=contact@weplay.one EMAIL_PORT=587 EMAIL_HOST_PASSWORD=bihegppbvshfeubt

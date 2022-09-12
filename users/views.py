@@ -13,6 +13,9 @@ from django.conf import settings
 # Django REST Framework
 from django.contrib.auth import authenticate
 from rest_framework import generics
+from rest_framework.exceptions import (APIException,
+                                       NotAuthenticated,
+                                       AuthenticationFailed)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions
@@ -102,7 +105,7 @@ class VerifyEmailAPIView(generics.GenericAPIView):
             return Response({'error': 'Decode error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserLoginAPIView(TokenObtainPairView):
+class UserLoginAPIView(TokenObtainPairView, APIException):
     """User login API view."""
     permission_classes = [permissions.AllowAny]
     serializer_class = TokenObtainPairSerializer
@@ -120,14 +123,30 @@ class UserLoginAPIView(TokenObtainPairView):
             if login_serializer.is_valid():
                 user_serializer = UserModelSerializer(user)
 
-                return Response({
-                    'access_token': login_serializer.validated_data.get('access'),
-                    'refresh_token': login_serializer.validated_data.get('refresh'),
-                    'user': user_serializer.data,
-                    'message': 'Inicio de sesión exitoso'
-                }, status=status.HTTP_200_OK)
-            return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    data={
+                        'access_token': login_serializer.validated_data.get('access'),
+                        'refresh_token': login_serializer.validated_data.get('refresh'),
+                        'user': user_serializer.data,
+                        'message': 'Inicio de sesión exitoso'
+                    },
+                    status=status.HTTP_200_OK)
+            raise NotAuthenticated(
+                detail={
+                    "error_msg": {
+                        "ESP": "Autenticación fallida",
+                        },
+                }
+            )
+        else:
+            raise AuthenticationFailed(
+                detail={
+                    "error_msg": {
+                        "ESP": "El usuario o contraseña es incorrecto",
+                        }
+
+                }
+            )
 
 
 class CompleteUserProfileAPIView(APIView):

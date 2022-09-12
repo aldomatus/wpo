@@ -97,6 +97,10 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "utils.api_exception_handler.api_exception_handler",
+}
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env.str('EMAIL_HOST')
 EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
@@ -150,6 +154,4 @@ CRYPTOGRAPHY_BACKEND = 'cryptography.hazmat.backends.default_backend'
 CRYPTOGRAPHY_KEY = os.environ["DB_PASSWORD_ENCRYPT"].encode()
 CRYPTOGRAPHY_SALT = 'django-cryptography'
 SIGNING_BACKEND = 'django_cryptography.core.signing.TimestampSigner'
-
-
 
