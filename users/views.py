@@ -15,7 +15,8 @@ from django.contrib.auth import authenticate
 from rest_framework import generics
 from rest_framework.exceptions import (APIException,
                                        NotAuthenticated,
-                                       AuthenticationFailed)
+                                       AuthenticationFailed,
+                                       ParseError)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions
@@ -60,7 +61,7 @@ class UserSignUpAPIView(APIView):
         try:
             serializer = UserSignUpSerializer(data=request.data)
             if not serializer.domain_validator(request.data["email"]):
-                raise Exception("Invalid email domain")
+                raise ParseError("Invalid email domain")
 
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
@@ -69,16 +70,16 @@ class UserSignUpAPIView(APIView):
             user_token = CustomUser.objects.get(email=data['email'])
             token = RefreshToken.for_user(user_token).access_token
             current_site = get_current_site(request).domain
-            relativeLink = reverse('email_verification')
-            absurl = 'http://' + current_site + relativeLink + "?token=" + str(token)
-            email_body = 'Hi ' + str(user_token.user_name) + ' use the next link to verify your email: ' + str(absurl)
+            relative_link = reverse('email_verification')
+            abs_url = 'http://' + current_site + relative_link + "?token=" + str(token)
+            email_body = 'Hi ' + str(user_token.user_name) + ' use the next link to verify your email: ' + str(abs_url)
             data = {'email_body': email_body, 'to_email': user_token.email, 'email_subject': 'Verify your email'}
             Util.send_email(data)
             return Response(data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             exc_tb = sys.exc_info()[2]
-            return Response({"message": "something bad ocurred!",
+            return Response({"message": "something bad occurred!",
                              "error": f"{str(e)} line: {exc_tb.tb_lineno}"
                              },
                             status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+
 class CtCountry(models.Model):
     country_id = models.SmallAutoField(primary_key=True)
     country_name = models.CharField(_('nombre del pais'), max_length=100, unique=True)
@@ -11,7 +12,7 @@ class CtCountry(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=['country_name', ]),
-                   models.Index(fields=['country_slug', ]),]
+                   models.Index(fields=['country_slug', ]), ]
 
     def __str__(self):
         return self.paiPais
@@ -66,7 +67,6 @@ class CtDomainWhitelist(models.Model):
         verbose_name_plural = 'domain whitelist'
         ordering = ['domain_wl_id']
         indexes = [models.Index(fields=['domain_wl_dominio', ])]
-
 
     def __str__(self):
         return self.domain_wl_dominio
