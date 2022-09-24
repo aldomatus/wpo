@@ -2,7 +2,8 @@ from users.views import (UserSignUpAPIView,
                          VerifyEmailAPIView,
                          UserLoginAPIView,
                          CompleteUserProfileAPIView)
-from wpo_logic.views import CodigosPostalesAPIView
+from wpo_logic.views import (CodigosPostalesAPIView,
+                             SportsLocationAPIView)
 from django.contrib import admin
 from django.urls import path, include
 
@@ -14,4 +15,5 @@ urlpatterns = [
     path('users/login', UserLoginAPIView.as_view(), name='login'),
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('wpo_logic/codigos-postales/', CodigosPostalesAPIView.as_view(), name='codigos postales'),
+    path('wpo_logic/sport-locations/', SportsLocationAPIView.as_view(), name='sport locations'),
 ]

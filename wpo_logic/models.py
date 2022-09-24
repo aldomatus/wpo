@@ -31,15 +31,12 @@ class SportsLocation(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     status = models.BooleanField(default=1)
-    is_active = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        super(SportsLocation, self).save(*args, **kwargs)
 
 
 class CodigosPostales(models.Model):
