@@ -3,7 +3,8 @@ from users.views import (UserSignUpAPIView,
                          UserLoginAPIView,
                          CompleteUserProfileAPIView)
 from wpo_logic.views import (CodigosPostalesAPIView,
-                             SportsLocationAPIView)
+                             SportsLocationAPIView,
+                             SportsLocationUploadImage)
 from django.contrib import admin
 from django.urls import path, include
 
@@ -16,4 +17,5 @@ urlpatterns = [
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('wpo_logic/codigos-postales/', CodigosPostalesAPIView.as_view(), name='codigos postales'),
     path('wpo_logic/sport-locations/', SportsLocationAPIView.as_view(), name='sport locations'),
+    path('wpo_logic/sport-locations/upload-image/', SportsLocationUploadImage.as_view(), name='sport locations image'),
 ]
