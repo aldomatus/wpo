@@ -55,7 +55,7 @@ class UserSignUpSerializer(serializers.Serializer):
     def domain_validator(email):
         wl_results = CtDomainWhitelist.objects.all()
         white_list = [i.domain_wl_dominio for i in wl_results]
-        pat = "^[a-zA-Z0-9-_]+@[a-zA-Z0-9]+\.[a-z]{1,3}$"
+        pat = "^[a-z0-9]+[\._]?[ a-z0-9]+[@]\w+[. ]\w{2,3}$"
         if not re.match(pat, email):
             raise Exception("Invalid Email")
         res = email[email.index('@') + 1:]
